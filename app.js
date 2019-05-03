@@ -1,57 +1,19 @@
-
-//console.log(__dirname);
-///*/*----------------------------------------------------------------------------------------------*///npm install tedious 후 복붙va
-var sql = require('mssql');
-var Connection = require('tedious').Connection;     //tedious폴더 mssql로 이름 변경
-var Request = require('tedious').Request;
-
-
-
-var config = {
-    server: '192.168.0.97',
-    options: { encrypt:false, database: 'Test_MJ' },
-    authentication:{
-        type:"default",
-        options:{
-            userName:"MJ",
-            password:"1234"
-        }
-    }
-};
-
-
-var connection = new Connection(config);
-connection.on('connect', function(err) {
-    console.log("Connected");
-    executeStatement();
-});
-
-function executeStatement(){
-request = new Request("select Convert(char(10),getdate(),121) as TargetDate, newid()", function(err, rowCount) {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log(rowCount + ' rows');
-        }
-    });
-
-    request.on('row', function(columns) {
-        columns.forEach(function(column) {
-            console.log(column.value);
-        });
-    });
-
-    connection.execSql(request);
-}
-
-
-/*----------------------------------------------------------------------------------------------*/
+//inport modules
 var express = require('express');
 var path = require('path');
 var app = express();
+var bodyParser = require('body-parser');
+var Connection = require('mssql')
+var Request = require('mssql')
+var sql = require('mssql')
 
+
+//view setting
 app.set("view engine", 'ejs');
+
+//set middlewares 서버에 도착한 신호는 router를 통해서 어떤 response를 할지 결정되는데 router 통하기 전에 모든신호들에게 수행되는 명령어! app.use()를 통해 수행. 당연히 router보다 위에 위치해야한다.
 app.use(express.static(path.join(__dirname + 'public')));
+app.use(bodyParser.json());
 
 var data={count:0};
 app.get('/', function (req,res) {
